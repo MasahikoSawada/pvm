@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+fetch_pvm_prefix()
+{
+   # TODO : pvm_configから取得する
+   pvm_prefix="/home/masahiko/pvm"
+}
+
+# export other env variables
+export use_version
+export pvm_prefix pvm_lib pvm_script switch_version_sh use_version switch_file
+
+# fetch pvm_prefix
+fetch_pvm_prefix
+
+# set env variables
+pvm_lib="$pvm_prefix/lib"
+pvm_scrfipt="$pvm_prefix/script"
+pvm_bin="$pvm_prefix/bin"
+pvm_version="$pvm_prefix/version"
+
+# set flags
+export use_already_use
+

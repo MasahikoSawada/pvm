@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+LISTFILE="$pvm_prefix/info/VERSIONS"
+CURRENTFILE="$pvm_prefix/info/CURRENT"
+
+# Store to $versions[@]
+get_versions()
+{
+   i=0
+
+   for version in `\ls -S1 $pvm_version`
+   do
+       i=$(($i + 1))
+       versions[$i]="$version"
+   done
+
+}
+
+# Strore to $current
+get_current()
+{
+   current=$(cat $CURRENTFILE)
+}
+
+# Update CURRENT
+update_current()
+{
+   # $1にアップデートする
+   echo "$1" > $CURRENTFILE
+}
+

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+source "$pvm_prefix/lib/list"
+
+# get version list => versions[@]
+get_versions
+dputsx "$0($LINENO): avaiable versions => ${versions[@]}"
+
+# get current using verions => current_version
+get_current
+dputsx "$0($LINENO): current version => $current"
+
+#print list
+print_version_list

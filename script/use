@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+source "$pvm_prefix/lib/use"
+
+# update variable to switch version
+_get_version_info
+
+# fetch version from VERSION
+get_versions
+dputsx "$0 ($LINENO): current version => $current"
+dputsx "$0 ($LINENO): will use version => $use_version"
+
+# check version
+check_version
+dputsx "$0 ($LINENO): already use flag => $use_already_use"
+
+# create switching file
+if [ "$use_already_use" == "1" ];then
+    return 0
+fi
+set_switching_file
+
+# udpate CURRENT file
+update_current $use_version
+
+# print using version
+print_using_version

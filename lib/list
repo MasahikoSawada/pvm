@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+source "$pvm_prefix/lib/print"
+source "$pvm_prefix/lib/info"
+
+# print only header
+_print_header()
+{
+   echo ""
+   putsx "Available PostgreSQLs.."
+   echo ""
+}
+
+# print only fotter
+_print_fotter()
+{
+   putsx " "
+   putsx -n "green" "=>"
+   putsx " : current version"
+   echo ""
+}
+
+# print only version list
+_print_list()
+{
+   for version in "${versions[@]}"
+   do
+       if [[ "$version" == "$current" ]];then
+           putsx -n "green" "=> "
+       else
+           putsx -n "   "
+       fi
+
+       putsx "$version"
+   done
+}
+
+# print version list and info
+print_version_list()
+{
+   _print_header
+   _print_list
+   _print_fotter
+}
+
+# print version list and info after fetching current version
+get_current_and_print_list()
+{
+   get_current
+   print_version_list
+}

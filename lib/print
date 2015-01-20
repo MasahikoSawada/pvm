@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+putsx()
+{
+   newline=0
+
+   case "$@" in
+       *-n*)
+           newline=1
+           shift
+           ;;
+   esac
+
+   newline=${newline:-}
+   if [ "${color[$1]}" != "" ];then
+       word_color=${color[$1]}
+       shift
+   else
+       word_color=${color[white]}
+   fi
+
+   message=$1
+
+   if [ "$#" != "1" ];then
+       for word in `seq 1 $#`
+       do
+           messages="$message$message[$word]"
+       done
+   else
+       messages=$message
+   fi
+
+   if [ "$newline" != "0" ];then
+       echo -en  "$word_color$messages${color[white]}"
+   else
+       echo -e  "$word_color$messages${color[white]}"
+   fi
+}
+
+# debug print with magenta
+dputsx()
+{
+   argv="$@"
+   messages=()
+   for i in `seq 1 $#`
+   do
+       messages+=${argv[$((i - 1))]}
+   done
+
+   if [ "$pvm_debug" != "0" ];then
+       putsx "magenta" "${messages[@]}"
+   fi
+}
+
+# error print with red
+err_log()
+{
+   argv="$@"
+   messages=("ERROR: ")
+   for i in `seq 1 $#`
+   do
+       messages+=${argv[$((i - 1))]}
+   done
+
+   putsx "red" "${messages[@]}"
+}
+
+declare -A color
+color=(
+   ["black"]="\033[0;30m"
+   ["red"]="\033[0;31m"
+   ["green"]="\033[0;32m"
+   ["yellow"]="\033[0;33m"
+   ["blue"]="\033[0;34m"
+   ["magenta"]="\033[0;35m"
+   ["cyan"]="\033[0;36m"
+   ["white"]="\033[0;39m"
+)

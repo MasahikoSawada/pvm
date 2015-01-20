@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+source "$pvm_prefix/lib/info"
+source "$pvm_prefix/lib/print"
+source "$pvm_prefix/lib/list"
+
+_invalid_version()
+{
+    putsx -n "green" "$use_version"
+    putsx " is invalid version"
+    get_current_and_print_list
+}
+
+_already_use()
+{
+    putsx -n "green" "$use_version"
+    putsx " is already used"
+}
+
+_write_switching_file()
+{
+    newline=0
+    case "$@" in
+	*-n*)
+	    newline=1
+	    shift
+	    ;;
+    esac
+
+    if [ "$newline" != "0" ];then
+	echo -n "$1" >> $pvm_version/$use_version
+    else
+	echo "$1" >> $pvm_version/$use_version
+    fi
+	
+}
+
+_get_version_info()
+{
+    # postgres env variables
+    if [[ "$PATH" =~ "${pvm_version}" ]];then
+        # need to rewrite PATH
+	path=`echo $PATH | sed -e "s@$pvm_version/[0-9]\.[0-9]\.[0-9]@$pvm_version/$use_version@g"`
+    else
+        # just append path to PATH
+	path="$pvm_version/$use_version/bin"
+    fi
+    
+    pgport="5"`echo $use_version | sed -e "s/\.//g"`
+    pgdata="$pvm_version/$use_version/data"
+
+}
+
+_create_switching_file()
+{
+    dputsx "$0 ($LINENO): path has been rewrited. path => $path"
+    dputsx "$0 ($LINENO): PGDATA has been rewrited. pgdata => $pgdata"
+    dputsx "$0 ($LINENO): PGPORT has been rewrited. pgport => $pgport"
+    
+   # PATH
+   #echo  -n "export PATH=" > $switch_file
+   #echo -n "$path" >> $switch_file
+   #echo ':$PATH' >> $switch_file
+   # PGDATA
+    echo "export PGDATA=$pgdata" >> $switch_file
+   # PGPORT
+    echo "export PGPORT=$pgport" >> $switch_file
+    
+    dputsx "$0 ($LINENO): created switching file => $use_version"
+}
+
+set_switching_file()
+{
+   # find swithing file
+    switch_file=$pvm_version/$use_version/switch.sh
+   if [ ! -e "$switch_file" ]; then
+       # $use_version is the version we want to use
+       touch $switch_file
+       chmod 744 $switch_file
+       _create_switching_file
+   fi
+}
+
+print_using_version()
+{
+   # get CURRENT
+   get_current
+   putsx "Swicted version to.."
+   putsx "green" "$current"
+}
+
+check_version()
+{
+   # 指定されたバージョンがlistに存在するかを確認する
+   use_already_use=0
+   find=false
+   get_current
+
+   if [ "$use_version" == "$current" ];then
+       _already_use
+       use_already_use=1
+       return 0
+   fi
+
+   for version in "${versions[@]}"
+   do
+       if [ "$version" == "$use_version" ];then
+           find=true
+           break;
+       fi
+   done
+
+   if [ "$find" == "false" ];then
+       _invalid_version
+       use_already_use=1
+       return 0
+   fi
+}
