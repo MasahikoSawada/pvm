@@ -8,7 +8,7 @@ fetch_pvm_prefix()
 
 # export other env variables
 export use_version
-export pvm_prefix pvm_lib pvm_script switch_version_sh use_version switch_file
+export pvm_prefix pvm_lib pvm_script switch_version_sh use_version install_version switch_file
 
 # fetch pvm_prefix
 fetch_pvm_prefix
@@ -18,6 +18,10 @@ pvm_lib="$pvm_prefix/lib"
 pvm_scrfipt="$pvm_prefix/script"
 pvm_bin="$pvm_prefix/bin"
 pvm_version="$pvm_prefix/version"
+
+# META data
+pvm_knownlist_file="$pvm_prefix/info/VERSIONS"
+pvm_current_file="$pvm_prefix/info/CURRENT"
 
 # set flags
 export use_already_use

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+source "$pvm_lib/list"
+
+_get_known_list()
+{
+#    declare -a known_versions=()
+    while read line;
+    do
+	if [[ "$line" =~ (^[#])|(^$) ]];then
+	    continue
+	fi
+	known_versions=(${known_versions[@]} "$line")
+    done < $pvm_knownlist_file
+}
+
+_show_all_knownlist()
+{
+    for version in "${known_versions[@]}"
+    do
+	putsx "green" "$version"
+    done
+}
+
+_show_short_knownlist()
+{
+    for version in "${known_versions[@]}"
+    do
+	m_version=${version%.*}
+	prev_m_version=${prev_version%.*}
+	if [ "$prev_m_version" != "$m_version" -a "$prev_version" != "" ];then
+	    putsx "green" "~${version}"
+	fi
+	prev_version=${version}
+    done
+}
+
+_invalid_version()
+{
+    putsx -n "green" "$install_version"
+    putsx " is not invalid version"
+    putsx "You can select version followings."
+    _show_short_knownlist
+}
+
+_already_installed()
+{
+    putsx -n "green" "$install_version"
+    putsx " is already installed"
+    putsx "You can select version followings"
+    _print_list
+}
+
+check_exists()
+{
+    # 指定されたバージョンがそもそも存在するか確認する
+    declare -a known_versions=()
+    _get_known_list
+    dputsx "$0 ($LINENO): known list => ${known_versions[@]}"
+
+    find=false
+    for version in "${known_versions[@]}"
+    do
+	if [ "$version" == "$install_version" ];then
+	    find=true
+	    break
+	fi
+    done
+    
+    if [ "$find" == "false" ];then
+	install_err_version=1
+	_invalid_version
+	return 0
+    fi
+}
+
+check_install_version()
+{
+    # 存在するのはわかったので後は、インストール済みかどうかを調べる
+    get_versions
+    dputsx "$0 ($LINENO) got versions => ${versions[@]}"
+
+    find=false
+    for version in "${versions[@]}"
+    do
+	if [ "$install_version" == "$version" ];then
+	    dputs "$0 ($LINENO): install_version is already installed => $install_version"
+	    install_err_version=1
+	    _already_installed
+	    return 1
+	fi
+    done
+}

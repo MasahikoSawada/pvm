@@ -7,7 +7,6 @@ CURRENTFILE="$pvm_prefix/info/CURRENT"
 get_versions()
 {
    i=0
-
    for version in `\ls -S1 $pvm_version`
    do
        i=$(($i + 1))
