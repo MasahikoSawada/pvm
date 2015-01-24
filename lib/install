@@ -39,7 +39,7 @@ _invalid_version()
 {
     putsx -n "green" "$install_version"
     putsx " is not invalid version"
-    putsx "You can select version followings."
+    putsx "You can install following versions."
     _show_short_knownlist
 }
 
@@ -47,7 +47,7 @@ _already_installed()
 {
     putsx -n "green" "$install_version"
     putsx " is already installed"
-    putsx "You can select version followings"
+    putsx "You can select following versions."
     _print_list
 }
 
@@ -90,4 +90,78 @@ check_install_version()
 	    return 1
 	fi
     done
+}
+
+_download_file()
+{
+    url=$(echo $pvm_download_url | sed -e "s/#####/$install_version/g")
+    dputsx "$0 ($LINENO): download url => \"$url\""
+    dputsx "$0 ($LINENO): download into => \"$pvm_tmp/$install_tarball_filename\""
+
+    putsx -n "blue" "Intsalling "
+    putsx -n "green" "$install_version "
+    putsx "blue" ":)"
+
+    \curl --progress-bar -o $pvm_tmp/$install_tarball_filename $url
+    dputsx "$0 ($LINENO): installed successfully"
+}
+
+_extract_tarball()
+{
+    putsx "blue" "Extracting tarball"
+    tar xjf $pvm_tmp/$install_tarball_filename -C $pvm_tmp
+}
+
+_cleanup_all_files()
+{
+    if [ "$1" == "" ];then
+	err_log "Failed to remove all file \"$1\""
+    fi
+    rm -rf $1/*
+}
+
+download_and_setup_tarball()
+{
+    install_full_postgresql_name="postgresql-$install_version"
+    install_tarball_filename=$(echo $pvm_tarball_filename | sed -e "s/#####/$install_version/g")
+
+    install_directory="$pvm_version/$install_version/source"
+    
+    # First, we should make new directory under the $pvm_version
+    dputsx "Create \"$install_directory\" directory"
+    mkdir -p $install_directory
+
+    _download_file
+    if [ ! -e "$pvm_tmp/$install_tarball_filename" -o ! -e "$install_directory" ];then
+	install_err_version=1
+	return 1
+    fi
+
+    _extract_tarball
+    
+    # copy all file of in tarball to $install_directory
+    putsx "blue" "Copy the all file into \"$install_directory\""
+    cp -r $pvm_tmp/$install_full_postgresql_name/* $install_directory
+
+    _cleanup_all_files $pvm_tmp
+}
+
+configure_and_make_install()
+{
+    pg_prefix=$pvm_version/$install_version
+    install_directory="$pvm_version/$install_version/source"
+
+    cd $install_directory
+    dputsx "$0 ($LINENO): changed directory to => $install_directory"
+
+    putsx -n "blue" "Execution configure script..  "
+    ./configure --prefix=$pg_prefix > /dev/null 2>&1
+
+    # TODO: handle case where configure script failed here
+    putsx "blue" "Done"
+
+    putsx -n "blue" "Compiling Postgres. It would take a while..  "
+    make > /dev/null 2>&1
+    make install > /dev/null 2>&1
+    putsx "blue" "Done"
 }

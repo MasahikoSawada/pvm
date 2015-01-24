@@ -5,22 +5,33 @@ source "$pvm_lib/install"
 dputsx "install script start"
 
 # verify specified version
-check_exists
+#check_exists
 if [ "$install_err_version" == "1" ];then
     return 1
 fi
 dputsx "$0 ($LINENO): check_exists => OK"
 
-check_install_version
+#check_install_version
 if [ "$install_err_version" == "1" ];then
     return 1
 fi
 dputsx "$0 ($LINENO): check_install_version => OK"
 
-# install version is invalid version
-
-# check installed versions
+# OK, the specified version is valid and will able to install it.
+# fetch specified version using by curl command
+#download_and_setup_tarball
+if [ "$install_err_version" == "1" ];then
+    return 1
+fi
 
 # install specified version
+configure_and_make_install
+if [ "$install_err_version" == "1" ];then
+    return 1
+fi
 
-# add version to VERSIONS file
+putsx -n "blue" "You could install "
+putsx -n "green" "$install_version "
+putsx "blue" "successfully."
+putsx "blue" "You can select this version as following command."
+putsx "green" "     $ pvm use $install_version"

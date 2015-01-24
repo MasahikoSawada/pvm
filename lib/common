@@ -7,8 +7,9 @@ fetch_pvm_prefix()
 }
 
 # export other env variables
-export use_version
-export pvm_prefix pvm_lib pvm_script switch_version_sh use_version install_version switch_file
+export use_version install_version
+export pvm_prefix pvm_lib pvm_script switch_version_sh switch_file pvm_tmp
+export pvm_download_url pvm_tarball_name
 
 # fetch pvm_prefix
 fetch_pvm_prefix
@@ -18,10 +19,13 @@ pvm_lib="$pvm_prefix/lib"
 pvm_scrfipt="$pvm_prefix/script"
 pvm_bin="$pvm_prefix/bin"
 pvm_version="$pvm_prefix/version"
+pvm_tmp="$pvm_prefix/tmp"
 
 # META data
 pvm_knownlist_file="$pvm_prefix/info/VERSIONS"
 pvm_current_file="$pvm_prefix/info/CURRENT"
+pvm_tarball_filename="postgresql-#####.tar.bz2"
+pvm_download_url="http://ftp.postgresql.org/pub/source/v#####/$pvm_tarball_filename" # the version is #####(5 times)
 
 # set flags
 export use_already_use
